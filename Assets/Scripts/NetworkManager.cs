@@ -9,15 +9,10 @@ public class NetworkManager : MonoBehaviour
 
 	public HostData[] hostList;
 
-	void Start()
-	{
-		MasterServer.ipAddress = "218.18.170.40";
-	}
-	
 	public void StartServer()
 	{
 		//MasterServer.ipAddress = nplayer.externalIP;
-		Network.InitializeServer(4, 25000, !Network.HavePublicAddress());
+		Network.InitializeServer(4, nplayer.externalPort, !Network.HavePublicAddress());
 		MasterServer.RegisterHost(typeName, gameName);
 	}
 
@@ -28,6 +23,7 @@ public class NetworkManager : MonoBehaviour
 
 	public void RefreshHostList()
 	{
+		MasterServer.ipAddress = nplayer.externalIP;
 		MasterServer.RequestHostList(typeName);
 	}
 
