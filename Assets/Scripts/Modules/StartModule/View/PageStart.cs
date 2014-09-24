@@ -12,10 +12,17 @@ public class PageStart : MonoBehaviour
 		PoolManager.GetComponent<UIEventListener>(btnHostGame).onClick = OnClickbtnHostGame;
 		PoolManager.GetComponent<UIEventListener>(btnJoinGame).onClick = OnClickbtnJoinGame;
 		PoolManager.GetComponent<UIEventListener>(btnSingleGame).onClick = OnClickbtnSingleGame;
+		NotificationCenter.GetInstance().AddEventHandler("test", _OnTest);
+	}
+
+	void _OnTest (object sender, System.EventArgs e)
+	{
+		Debug.Log ("------ _OnTest ------");
 	}
 
 	void OnClickbtnHostGame (GameObject go)
 	{
+		NotificationCenter.GetInstance().PostNotification("test");
 	}
 
 	void OnClickbtnJoinGame (GameObject go)
@@ -24,10 +31,5 @@ public class PageStart : MonoBehaviour
 
 	void OnClickbtnSingleGame (GameObject go)
 	{
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
 	}
 }
