@@ -11,5 +11,29 @@ namespace Core.Manager
 
 	public delegate void EventListener(params object[] args);
 
+	class Event
+	{
+		private object _context;
+		public object context
+		{
+			get { return _context; }
+		}
+		private string _name;
+		public string name
+		{
+			get { return _name; }
+		}
+		private object[] _data;
+		public object[] data
+		{
+			get { return _data; }
+		}
+		public Event(object context, string name, object[] data)
+		{
+			_context = context;
+			_name = name;
+			_data = data;
+		}
+	}
 
 }
