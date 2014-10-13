@@ -3,6 +3,15 @@ using System.Collections;
 
 public class NetworkManager : BaseManager 
 {
+	public static NetworkManager Instance
+	{
+		get
+		{
+			return _instance as NetworkManager;
+		}
+	}
+
+
 	protected override void OnInstanceMultiple ()
 	{
 		Debug.LogError ("------ Multiple instances of NetworkManager ------");

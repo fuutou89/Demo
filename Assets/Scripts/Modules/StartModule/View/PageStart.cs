@@ -1,5 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Core.Manager;
+using PureMVC.Patterns;
+using System.IO;
+using System;
 
 public class PageStart : MonoBehaviour 
 {
@@ -21,6 +25,7 @@ public class PageStart : MonoBehaviour
 
 	void OnClickbtnHostGame (GameObject go)
 	{
+		EventManager.instance.DispatchEvent(EventManager.instance, "TEST");
 	}
 
 	void OnClickbtnJoinGame (GameObject go)

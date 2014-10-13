@@ -3,17 +3,17 @@ using System.Collections;
 
 public class BaseManager : MonoBehaviour 
 {
-	public static BaseManager Instance;
+	protected static BaseManager _instance;
 
 	void Awake()
 	{
 		// Register the singleton
-		if(Instance != null)
+		if(_instance != null)
 		{
 
 		}
 
-		Instance = this;
+		_instance = this;
 	}
 
 	protected virtual void OnInstanceMultiple()

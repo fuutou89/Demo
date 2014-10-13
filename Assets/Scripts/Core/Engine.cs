@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Core.Interface;
+using Core.Manager;
 
 /// <summary>
 /// Everything start from here
@@ -42,11 +43,34 @@ public class Engine : MonoBehaviour
 	}
 	#endregion
 
+	void Awake()
+	{
+		if(_instance != null)
+		{
+			Destroy(this);
+		}
+		else
+		{
+			_instance = this;
+			DontDestroyOnLoad(this);
+		}
+	}
+
 	// Use this for initialization
 	void Start () 
 	{
 		// Load All Supporter
 		this.gameObject.AddComponent<NetworkManager>();
 		this.gameObject.AddComponent<PoolManager>();
+		EventManager.instance.Init();
+		ModuleManager.instance.AddAdditionalModule(new StartModule());
+	}
+
+	/// <summary>
+	/// Update Game (None MonoBehaviour Partition.)
+	/// </summary>
+	protected void Update()
+	{
+		_tickObjects.ForEach(tickObject => tickObject.Update());
 	}
 }

@@ -139,11 +139,254 @@ namespace Core.Manager
 			return true;
 		}
 
-		public static bool AddListener<T>(object context, string eventName, T Listener, bool useWeakReference = false, bool isOnce = false)
+		public static bool AddListener<T>(object context, string eventName, T listener, bool useWeakReference = false, bool isOnce = false)
 		{
+			return _instance._AddEventListener(context, eventName, listener as Delegate, useWeakReference, isOnce);
 		}
 
-		public static 
+		public static bool AddListener(object context, string eventName, EventListener listener, bool useWeakReference = false, bool isOnce = false)
+		{
+			return _instance._AddEventListener(context, eventName, listener, useWeakReference, isOnce);
+		}
+
+		// Add a listener to the event manager that will erceive any events of the supplied event name
+		public bool AddEventListener<T>(object context, string eventName, T listener, bool useWeakReference = false, bool isOnce = false)
+		{
+			return _AddEventListener(context, eventName, listener as Delegate, useWeakReference, isOnce);
+		}
+
+		public bool AddEventListener(object context, string eventName, EventListener listener, bool useWeakReference = false, bool isOnce = false)
+		{
+			return _AddEventListener(context, eventName, listener, useWeakReference, isOnce);
+		}
+
+		private bool _AddEventListener(object context, string eventName, Delegate listener, bool useWeakReference = false, bool isOnce = false)
+		{
+			if(context == null || listener == null || string.IsNullOrEmpty(eventName))
+			{
+				Log.Error("Event Manager: AddListener failed due to no listener or event name specified.");
+				return false;
+			}
+
+			List<EventReference> list = _GetEventListenerList(context, eventName, true);
+			if(list.Exists(l => l.listener == listener))
+			{
+				Log.Error("Event Manager: Listener: " + listener.GetType().ToString() + " is already in list for event: " + eventName);
+				return false; //listener already in list
+			}
+
+			list.Add(new EventReference(listener, useWeakReference, isOnce));
+			return true;
+		}
+
+		public static bool RemoveListener<T>(object context, string eventName, T listener)
+		{
+			return _instance._RemoveEventListener(context, eventName, listener as Delegate);
+		}
+
+		public static bool RemoveListener(object context, string eventName, EventListener listener)
+		{
+			return _instance._RemoveEventListener(context, eventName, listener);
+		}
+
+		public bool RemoveEventListener(object context, string eventName, EventListener listener)
+		{
+			return _RemoveEventListener(context, eventName, listener);
+		}
+
+		// Remove a listener from the subscribed to event
+		public bool RemoveEventListener<T>(object context, string eventName, T listener)
+		{
+			return _RemoveEventListener(context, eventName, listener as Delegate);
+		}
+
+		private bool _RemoveEventListener(object context, string eventName, Delegate listener)
+		{
+			if(!_listenerTable.ContainsKey(context))
+				return false;
+
+			List<EventReference> list = _GetEventListenerList(context, eventName);
+			if(list == null)
+			{
+				return false;
+			}
+			EventReference eventReference = list.Find(l => l.listener == listener);
+			if(eventReference == null)
+			{
+				return false;
+			}
+			list.Remove(eventReference);
+			if(list.Count <= 0)
+			{
+				IDictionary<string, List<EventReference>> dictionary = _listenerTable[context] as IDictionary<string, List<EventReference>>;
+				dictionary.Remove(eventName);
+				if(dictionary.Count <= 0)
+				{
+					_listenerTable.Remove(context);
+				}
+			}
+			return true;
+		}
+
+		public static bool Trigger(object context, string eventName, params object[] data)
+		{
+			return _instance._TriggerEvent(context, eventName, data);
+		}
+
+		// Trigger the event instantly, this should only be used in specific circumstances,
+		// the QueueEvent function is usually fast enough for the vast majority of uses.
+		public bool TriggerEvent(object context, string eventName, params object[] data)
+		{
+			return _TriggerEvent(context, eventName, data);
+		}
+
+		private bool _TriggerEvent(object context, string eventName, object[] data)
+		{
+			if(!_listenerTable.ContainsKey(context))
+			{
+				Log.Error("Event Manager: Event \"" + eventName + "\" triggered has no listeners!");
+				return false; // No listener for event so ignore it
+			}
+
+			List<EventReference> list = _GetEventListenerList(context, eventName);
+			if(list == null) return false;
+
+			list.ForEach(l =>
+     		{
+				Delegate listener = l.listener;
+				if(listener != null)
+				{
+					try
+					{
+						if(listener is EventListener)
+						{
+							(listener as EventListener)(data);
+						}
+						else
+						{
+							listener.DynamicInvoke(data);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Error("EventManager:TriggerEvent - " + e.ToString());
+					}
+
+					if(l.isOnce)
+					{
+						_RemoveEventListener(context, eventName, listener);
+					}
+				}
+			});
+			return true;
+		}
+
+		public static bool Dispatch(object context, string eventName, params object[] data)
+		{
+			return _instance._DispatchEvent(context, eventName, data);
+		}
+
+		// Inserts the event into the current queue.
+		public bool DispatchEvent(object context, string eventName, params object[] data)
+		{
+			return _DispatchEvent(context, eventName, data);
+		}
+
+		private bool _DispatchEvent(object context, string eventName, object[] data)
+		{
+			if(!_listenerTable.ContainsKey(context))
+			{
+				Log.Error("EventManager: QueueEvent failed due to no listeners for event: " + eventName);
+				return false;
+			}
+
+			lock (lockObjcet)
+			{
+				_eventQueue.Enqueue(new Event(context, eventName, data));
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// @Private
+		/// Called by Engine
+		/// Every update cycle the queue is processed, if the queue processing is limited,
+		/// a maximum processing time per update can be set after which the events will have
+		/// to be processed next update loop
+		/// </summary>
+		public void Update()
+		{
+			float timer = 0.0f;
+			while (_eventQueue.Count > 0)
+			{
+				if(LimitQueueProcesing)
+				{
+					if(timer > QueueProcessTime)
+						return;
+				}
+
+				Event evt = null;
+				lock(lockObjcet)
+				{
+					evt = _eventQueue.Dequeue() as Event;
+				}
+				_TriggerEvent(evt.context, evt.name, evt.data);
+
+				if(LimitQueueProcesing)
+					timer += Time.deltaTime;
+			}
+			_weakReferenceGCTime += Time.deltaTime;
+			if(_weakReferenceGCTime > weakReferenceGCDelay)
+			{
+				_weakReferenceGCTime = 0.0f;
+				_GCWeakReference();
+			}
+		}
+
+		private void _GCWeakReference()
+		{
+			IDictionary<string, List<EventReference>> dictionary;
+			List<EventReference> list;
+			List<EventReference> gcList = new List<EventReference>();
+			List<string> gcDictionary = new List<string>();
+			List<object> gcTable = new List<object>();
+			foreach(DictionaryEntry entry in _listenerTable)
+			{
+				dictionary = entry.Value as IDictionary<string, List<EventReference>>;
+				foreach(KeyValuePair<string, List<EventReference>> pair in dictionary)
+				{
+					list = pair.Value;
+					list.ForEach(l => 
+		            {
+						if(l.listener == null)
+						{
+							gcList.Add(l);
+						}
+					});
+					gcList.ForEach(l => list.Remove(l));
+					gcList.Clear();
+					if(list.Count <= 0)
+					{
+						gcDictionary.Add(pair.Key);
+					}
+				}
+				gcDictionary.ForEach(d => dictionary.Remove(d));
+				gcDictionary.Clear();
+				if(dictionary.Count <= 0)
+				{
+					gcTable.Add(entry.Key);
+				}
+			}
+			gcTable.ForEach(t => _listenerTable.Remove(t));
+			gcTable.Clear();
+		}
+
+		public void OnApplicationQuit()
+		{
+			_listenerTable.Clear();
+			_eventQueue.Clear();
+			_instance = null;
+		}
 	}
 }
 

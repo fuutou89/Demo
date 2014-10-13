@@ -130,6 +130,9 @@ public class UIPanel : UIRect
 
 	public OnClippingMoved onClipMove;
 
+	// Clip texture feature contributed by the community: http://www.tasharen.com/forum/index.php?topic=9268.0
+	[HideInInspector][SerializeField] Texture2D mClipTexture = null;
+
 	// Panel's alpha (affects the alpha of all widgets)
 	[HideInInspector][SerializeField] float mAlpha = 1f;
 
@@ -353,7 +356,7 @@ public class UIPanel : UIRect
 
 			while (p != null)
 			{
-				if (p.mClipping == UIDrawCall.Clipping.SoftClip) ++count;
+				if (p.mClipping == UIDrawCall.Clipping.SoftClip || p.mClipping == UIDrawCall.Clipping.TextureMask) ++count;
 				p = p.mParentPanel;
 			}
 			return count;
@@ -364,7 +367,7 @@ public class UIPanel : UIRect
 	/// Whether the panel will actually perform clipping of children.
 	/// </summary>
 
-	public bool hasClipping { get { return mClipping == UIDrawCall.Clipping.SoftClip; } }
+	public bool hasClipping { get { return mClipping == UIDrawCall.Clipping.SoftClip || mClipping == UIDrawCall.Clipping.TextureMask; } }
 
 	/// <summary>
 	/// Whether the panel will actually perform clipping of children.
@@ -419,6 +422,28 @@ public class UIPanel : UIRect
 			UIPanel p = list[i];
 			if (p != this && p.parentPanel == this)
 				p.InvalidateClipping();
+		}
+	}
+
+	/// <summary>
+	/// Texture used to clip the region.
+	/// </summary>
+
+	public Texture2D clipTexture
+	{
+		get
+		{
+			return mClipTexture;
+		}
+		set
+		{
+			if (mClipTexture != value)
+			{
+				mClipTexture = value;
+#if UNITY_EDITOR
+				if (!Application.isPlaying) UpdateDrawCalls();
+#endif
+			}
 		}
 	}
 
@@ -595,7 +620,7 @@ public class UIPanel : UIRect
 				mCorners[2] = new Vector3(x1, y1);
 				mCorners[3] = new Vector3(x1, y0);
 
-				if (anchorOffset && (mCam == null || mCam.transform.parent != cachedTransform))
+				if (anchorOffset && mCam == null || mCam.transform.parent != cachedTransform)
 				{
 					Vector3 off = cachedTransform.position;
 					for (int i = 0; i < 4; ++i)
@@ -1422,6 +1447,7 @@ public class UIPanel : UIRect
 			dc.alwaysOnScreen = alwaysOnScreen &&
 				(mClipping == UIDrawCall.Clipping.None || mClipping == UIDrawCall.Clipping.ConstrainButDontClip);
 			dc.sortingOrder = mSortingOrder;
+			dc.clipTexture = mClipTexture;
 		}
 	}
 
@@ -1643,7 +1669,9 @@ public class UIPanel : UIRect
 		if (list.Count > 0) list[0].LateUpdate();
 	}
 
-	/// <summary>
+	
+
+	// <summary>
 	/// Calculate the offset needed to be constrained within the panel's bounds.
 	/// </summary>
 
@@ -1675,7 +1703,24 @@ public class UIPanel : UIRect
 
 	public bool ConstrainTargetToBounds (Transform target, ref Bounds targetBounds, bool immediate)
 	{
-		Vector3 offset = CalculateConstrainOffset(targetBounds.min, targetBounds.max);
+		Vector3 min = targetBounds.min;
+		Vector3 max = targetBounds.max;
+
+		float ps = 1f;
+
+		if (mClipping == UIDrawCall.Clipping.None)
+		{
+			UIRoot rt = root;
+			if (rt != null) ps = rt.pixelSizeAdjustment;
+		}
+
+		if (ps != 1f)
+		{
+			min /= ps;
+			max /= ps;
+		}
+
+		Vector3 offset = CalculateConstrainOffset(min, max) * ps;
 
 		if (offset.sqrMagnitude > 0f)
 		{
