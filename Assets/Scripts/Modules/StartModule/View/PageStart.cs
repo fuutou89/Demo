@@ -10,6 +10,7 @@ public class PageStart : MonoBehaviour
 	public UIButton btnHostGame;
 	public UIButton btnJoinGame;
 	public UIButton btnSingleGame;
+	public NetworkView networkview;
 
 	// Use this for initialization
 	void Start () {
@@ -30,9 +31,17 @@ public class PageStart : MonoBehaviour
 
 	void OnClickbtnJoinGame (GameObject go)
 	{
+		NetworkManager.Instance.RefreshHostList();
 	}
 
 	void OnClickbtnSingleGame (GameObject go)
 	{
+		networkview.RPC("PrintText", RPCMode.All, "Hello Workd");
+	}
+
+	[RPC]
+	void PrintText(string text, NetworkMessageInfo info)
+	{
+		Debug.Log(text + "from" + info.sender);
 	}
 }

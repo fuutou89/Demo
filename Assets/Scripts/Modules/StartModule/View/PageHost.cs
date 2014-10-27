@@ -1,15 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PageHost : MonoBehaviour {
+public class PageHost : MonoBehaviour 
+{
+	public UIButton btnHostGame;
+	public UILabel txtHostInfo;
 
 	// Use this for initialization
 	void Start () {
-	
+		PoolManager.GetComponent<UIEventListener>(btnHostGame).onClick = OnClickbtnHostGame;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+
+	void OnClickbtnHostGame (GameObject go)
+	{
+		NetworkManager.Instance.StartServer(25000);
 	}
 }

@@ -1,15 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PageJoin : MonoBehaviour {
+public class PageJoin : MonoBehaviour 
+{
+	public UIInput inputservername;
+	public UIInput inputportname;
+	public UILabel txtHostName;
 
-	// Use this for initialization
-	void Start () {
-	
+	public UIButton btnJoin;
+
+	void Start()
+	{
+		PoolManager.GetComponent<UIEventListener>(btnJoin).onClick = OnClickbtnJoin;
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+
+	void OnClickbtnJoin (GameObject go)
+	{
+		//int port = int.Parse(inputportname.value);
+		//NetworkManager.Instance.JoinServer(inputservername.value, 8080);
+		HostData data = NetworkManager.Instance.hostList[0];
+		NetworkManager.Instance.JoinServer(data);
 	}
 }

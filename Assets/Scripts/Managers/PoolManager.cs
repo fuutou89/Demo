@@ -2,21 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PoolManager : BaseManager 
+public class PoolManager : Singleton<PoolManager> 
 {
-	public static PoolManager Instance
-	{
-		get
-		{
-			return _instance as PoolManager;
-		}
-	}
-
-	protected override void OnInstanceMultiple ()
-	{
-		Debug.LogError ("------ Multiple instances of PoolManager ------");
-	}
-
 	public static T GetComponent<T>(GameObject go)
 	{
 		object t = go.GetComponent(typeof(T));
