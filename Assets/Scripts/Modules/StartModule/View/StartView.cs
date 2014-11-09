@@ -10,6 +10,5 @@ public class StartView : BaseView
 
 	public override void _Init ()
 	{
-		PoolManager.Instance.AddView(StartNotes.START_VIEW, this);
 	}
 }

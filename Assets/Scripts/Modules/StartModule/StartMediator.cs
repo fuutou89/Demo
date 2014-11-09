@@ -17,6 +17,8 @@ public class StartMediator : Mediator
 
 	public override void OnRegister ()
 	{
+		PoolManager.Instance.AddView(Resconfig.START_VIEW);
+
 		EventManager.instance.AddEventListener(EventManager.instance, "TEST", _OnTestEvent);
 		EventManager.instance.AddEventListener(NetworkManager.Instance, GameEvent.NETWORK_MASTER_SERVER_UP, _OnMasterServerUp);
 		EventManager.instance.AddEventListener(NetworkManager.Instance, GameEvent.NETWORK_HOST_LIST_UPDATE, _OnHostListUpdate);
@@ -24,6 +26,8 @@ public class StartMediator : Mediator
 
 	public override void OnRemove ()
 	{
+		PoolManager.Instance.RemoveView(Resconfig.START_VIEW);
+
 		EventManager.instance.RemoveEventListener(EventManager.instance, "TEST", _OnTestEvent);
 		EventManager.instance.RemoveEventListener(NetworkManager.Instance, GameEvent.NETWORK_MASTER_SERVER_UP, _OnMasterServerUp);
 		EventManager.instance.RemoveEventListener(NetworkManager.Instance, GameEvent.NETWORK_HOST_LIST_UPDATE, _OnHostListUpdate);
@@ -31,10 +35,12 @@ public class StartMediator : Mediator
 
 	private void _OnMasterServerUp (params object[] args)
 	{
-		if(_View != null)
-		{
-			_View.pagehost.txtHostInfo.text = args[0] as string;
-		}
+//		if(_View != null)
+//		{
+//			_View.pagehost.txtHostInfo.text = args[0] as string;
+//		}
+		PoolManager.Instance.RemoveView(Resconfig.START_VIEW);
+
 	}
 
 	private void _OnHostListUpdate (params object[] args)
@@ -48,7 +54,7 @@ public class StartMediator : Mediator
 				{
 					hostname += hd.gameName + "\n";
 				}
-				_View.pageJoin.txtHostName.text = hostname;
+				//_View.pageJoin.txtHostName.text = hostname;
 			}
 		}
 	}

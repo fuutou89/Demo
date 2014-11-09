@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class PageHost : MonoBehaviour 
 {
 	public UIButton btnHostGame;
-	public UILabel txtHostInfo;
+	public UIInput inputRoomName;
 
 	// Use this for initialization
 	void Start () {
@@ -14,6 +14,9 @@ public class PageHost : MonoBehaviour
 
 	void OnClickbtnHostGame (GameObject go)
 	{
-		NetworkManager.Instance.StartServer(25000);
+		if(inputRoomName.value != "")
+		{
+			NetworkManager.CreateRoom(inputRoomName.value);
+		}
 	}
 }

@@ -3,22 +3,24 @@ using System.Collections;
 
 public class PageJoin : MonoBehaviour 
 {
-	public UIInput inputservername;
-	public UIInput inputportname;
-	public UILabel txtHostName;
-
-	public UIButton btnJoin;
+	public UIButton btnRefreshHost;
+	public UILabel txtHostlist;
+	public GameObject HostUnitPrefab;
+	public UIGrid grid;
 
 	void Start()
 	{
-		PoolManager.GetComponent<UIEventListener>(btnJoin).onClick = OnClickbtnJoin;
+		PoolManager.GetComponent<UIEventListener>(btnRefreshHost).onClick = OnClickbtnRefreshHost;
 	}
 
-	void OnClickbtnJoin (GameObject go)
+	void OnClickbtnRefreshHost (GameObject go)
 	{
-		//int port = int.Parse(inputportname.value);
-		//NetworkManager.Instance.JoinServer(inputservername.value, 8080);
-		HostData data = NetworkManager.Instance.hostList[0];
-		NetworkManager.Instance.JoinServer(data);
+		foreach (RoomInfo roomInfo in PhotonNetwork.GetRoomList())
+		{
+			GameObject hgo = NGUITools.AddChild(grid.gameObject, HostUnitPrefab);
+			HostUnit unit = hgo.GetComponent<HostUnit>();
+			unit.UpdateHostUnit(roomInfo);
+		}
+		grid.Reposition();
 	}
 }

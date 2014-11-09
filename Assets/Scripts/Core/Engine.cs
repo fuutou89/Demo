@@ -62,8 +62,13 @@ public class Engine : MonoBehaviour
 		// Load All Supporter
 		this.gameObject.AddComponent<NetworkManager>();
 		this.gameObject.AddComponent<PoolManager>();
+		this.gameObject.AddComponent<CardInfoManager>();
+		this.gameObject.AddComponent<PlayerCard>();
+		this.gameObject.AddComponent<Scene>();
 		EventManager.instance.Init();
-		ModuleManager.instance.AddAdditionalModule(new StartModule());
+		//ModuleManager.instance.AddAdditionalModule(new StartModule());
+		//ModuleManager.instance.GotoModule(new StartModule());
+		//ModuleManager.instance.GotoModule(new InitalizeModule());
 	}
 
 	/// <summary>
