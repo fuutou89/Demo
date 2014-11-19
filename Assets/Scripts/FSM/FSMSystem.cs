@@ -187,15 +187,68 @@ public class FSMSystem
 		}
 	}
 
-
+	/// <summary>
+	/// This method delete a state from the FSM List if it exists, 
+	/// or prints an ERROR message if the state was not on the List.
+	/// </summary>
 	public void DeleteState(StateID id)
 	{
+		// Check for NullState before deleting
 		if(id == StateID.NullStateID)
 		{
-
+			Debug.LogError("FSM ERROR: NullStateID is not allowed for a real state");
+			return;
 		}
+
+		// Search the List and delete the state if it's inside it
+		foreach(FSMState state in states)
+		{
+			if(state.ID == id)
+			{
+				states.Remove(state);
+				return;
+			}
+		}
+		Debug.LogError("FSM ERROR: Impossible to delete state " + id.ToString() + 
+		               ". It was not on the list of states");
 	}
-}
+
+	public void PerformTransition(Transition trans)
+	{
+		// Check for NullTransition before changing the current state
+		if(trans == Transition.NullTransition)
+		{
+			Debug.LogError("FSM Error: NullTransition is not allowed for a real transition");
+			return;
+		}
+
+		// Check if the currentState has the transition pased as argument
+		StateID id = currentState.GetOutputState(trans);
+		if(id == StateID.NullStateID)
+		{
+			Debug.LogError("FSM ERROR: State " + currentStateID.ToString() + " does not have a target state " + 
+			               " for transition " + trans.ToString());
+			return;
+		}
+
+		// Update the currentStateID and currentState
+		currentStateID = id;
+		foreach(FSMState state in states)
+		{
+			if(state.ID == currentStateID)
+			{
+				// Do the post processing of the state before setting the new one
+				currentState.DoBeforeLeaving();
+
+				currentState = state;
+
+				// Reset the state to its desired condition before it can reason or act
+				currentState.DoBeforeEntering();
+				break;
+			}
+		} 
+	}// PreformTransition()
+} // class FSMSystem
 
 
 

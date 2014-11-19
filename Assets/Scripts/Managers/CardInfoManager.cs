@@ -26,6 +26,29 @@ public class CardInfoManager : Singleton<CardInfoManager>
 		return _cardcfgEntity.data.Find(e => e.no == no);
 	}
 
+	private CardEffect FormatCardEffect(string effect)
+	{
+		CardEffect cardeffect = new CardEffect();
+		if(effect != "null")
+		{
+			if(effect.Contains("ji"))
+			{
+				cardeffect.type = "ji";
+			}
+			else if(effect.Contains("ki"))
+			{
+				cardeffect.type = "ki";
+			}
+			else if(effect.Contains("jyou"))
+			{
+				cardeffect.type = "jyou";
+			}
+			cardeffect.des = effect.Replace(cardeffect.type, "");
+			if(cardeffect.des.Contains("fall")) cardeffect.des = cardeffect.des.Replace("fall", OTManager.instance.GetOT("CARD_DES_FALL"));
+		}
+		return cardeffect;
+	}
+
 	public List<string> GetMasterCardList()
 	{
 		List<string> cardlist = new List<string>();
@@ -45,4 +68,10 @@ public class CardInfoManager : Singleton<CardInfoManager>
 		cardlist.Add("B2-004");
 		return cardlist;
 	}
+}
+
+public class CardEffect
+{
+	public string type = "";
+	public string des = "";
 }

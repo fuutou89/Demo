@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Interface;
 using Core.Manager;
+using System.IO;
 
 /// <summary>
 /// Everything start from here
@@ -65,10 +66,15 @@ public class Engine : MonoBehaviour
 		this.gameObject.AddComponent<CardInfoManager>();
 		this.gameObject.AddComponent<PlayerCard>();
 		this.gameObject.AddComponent<Scene>();
+		this.gameObject.AddComponent<OTManager>();
 		EventManager.instance.Init();
 		//ModuleManager.instance.AddAdditionalModule(new StartModule());
 		//ModuleManager.instance.GotoModule(new StartModule());
 		//ModuleManager.instance.GotoModule(new InitalizeModule());
+
+		TextAsset text = Resources.Load(Resconfig.OT_PATH) as TextAsset;
+		OTManager.Instance.AddOT(text.ToString());
+
 	}
 
 	/// <summary>
