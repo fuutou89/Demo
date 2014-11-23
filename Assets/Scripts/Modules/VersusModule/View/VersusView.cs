@@ -13,6 +13,8 @@ public class VersusView : BaseView
 	public PlayArea areaSelf;
 	public PlayArea areaTarget;
 
+	public CardDes cardDesPanel;
+
 	public override void _Init ()
 	{
 		PoolManager.GetComponent<UIEventListener>(btnAddEnergy).onClick = OnClickbtnAddEnergy;
@@ -30,6 +32,8 @@ public class VersusView : BaseView
 		{
 			Debug.Log(player.name);
 		}
+
+		cardDesPanel.gameObject.SetActive(false);
 	}
 
 	void OnPhotonPlayerConnected(PhotonPlayer newPlayer)

@@ -1,12 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Config;
+using Core.Manager;
 
 public class CardUnit : MonoBehaviour 
 {
 	public UITexture texCard;
 	public UIButton btnCard;
-	private string cardno;
+	public UIButton btnShift;
+	public UIInput inputShift;
+	private string cardno = "";
+	public string CARDNO { get { return cardno; }}
+	public PlayArea.Side unitside;
 
 	// Use this for initialization
 	void Start () 
@@ -17,6 +22,17 @@ public class CardUnit : MonoBehaviour
 
 	void OnHoverbtnCard (GameObject go, bool state)
 	{
+		if(state)
+		{
+			if(cardno != "")
+			{
+				EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_HOVER_ON_CARD, this);
+			}
+		}
+		else
+		{
+			EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_HOVER_OFF_CARD);
+		}
 	}
 
 	void OnClickbtnCard (GameObject go)

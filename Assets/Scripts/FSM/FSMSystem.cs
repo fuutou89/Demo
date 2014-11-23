@@ -16,6 +16,13 @@ Written by Roberto Cezar Bianchini, July 2010
 public enum Transition
 {
 	NullTransition = 0, // Use this transition to represent a non-existing transition in your system
+	TurnStart = 1,
+	AwakePhaseEnd = 2,
+	DrawPhaseEnd = 3,
+	EnergyPhaseEnd = 4,
+	MainPhaseEnd = 5,
+	AttackPhaseEnd = 6,
+	TrunEnd = 7
 }
 
 /// <summary>
@@ -25,6 +32,13 @@ public enum Transition
 public enum StateID
 {
 	NullStateID = 0, // Use this ID to represent a non-existing State in your system
+	Awake = 1,
+	Draw = 2,
+	Energy = 3,
+	Main = 4,
+	Attack = 5,
+	End = 6,
+	Defence = 7
 }
 
 /// <summary>
@@ -176,15 +190,13 @@ public class FSMSystem
 		}
 
 		// Add the state to the List if it's not inside it
-		foreach(FSMState state in states)
+		if(states.Exists(e => e.ID == s.ID))
 		{
-			if(state.ID == s.ID)
-			{
-				Debug.LogError("FSM ERROR: Impossible to add state " + s.ID.ToString() + "because state has alreay been added");
-				return;
-			}
-			states.Add(s);
+			Debug.LogError("FSM ERROR: Impossible to add state " + s.ID.ToString() + "because state has alreay been added");
+			return;
 		}
+
+		states.Add(s);
 	}
 
 	/// <summary>
@@ -215,6 +227,7 @@ public class FSMSystem
 
 	public void PerformTransition(Transition trans)
 	{
+		Debug.Log ("------ PerformTransition ------");
 		// Check for NullTransition before changing the current state
 		if(trans == Transition.NullTransition)
 		{

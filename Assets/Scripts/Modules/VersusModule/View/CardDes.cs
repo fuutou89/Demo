@@ -30,6 +30,9 @@ public class CardDes : MonoBehaviour
 				Texture2D tex = Resources.Load(impagepath) as Texture2D;
 				texCard.mainTexture = tex;
 				if(cfg.desc != "null") txtDes.text = cfg.desc;
+				ShowCardEffect(CardInfoManager.Instance.CalCardEffectGroup(cfg));
+				txtCardName.text = cfg.name;
+				txtCardDes.text = CardInfoManager.Instance.FormatCardDes(cfg);
 			}
 		}
 	}

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Config;
+using Core.Manager;
 
 public class CardInfoManager : Singleton<CardInfoManager>  
 {
@@ -26,6 +27,18 @@ public class CardInfoManager : Singleton<CardInfoManager>
 		return _cardcfgEntity.data.Find(e => e.no == no);
 	}
 
+	public List<CardEffect> CalCardEffectGroup(cfgcard cfg)
+	{
+		List<CardEffect> effectgroup = new List<CardEffect>();
+		if(cfg != null)
+		{
+			effectgroup.Add(FormatCardEffect(cfg.effect1));
+			effectgroup.Add(FormatCardEffect(cfg.effect2));
+			effectgroup.Add(FormatCardEffect(cfg.effect3));
+		}
+		return effectgroup;
+	}
+
 	private CardEffect FormatCardEffect(string effect)
 	{
 		CardEffect cardeffect = new CardEffect();
@@ -47,6 +60,25 @@ public class CardInfoManager : Singleton<CardInfoManager>
 			if(cardeffect.des.Contains("fall")) cardeffect.des = cardeffect.des.Replace("fall", OTManager.instance.GetOT("CARD_DES_FALL"));
 		}
 		return cardeffect;
+	}
+
+	public string FormatCardDes(cfgcard cfg)
+	{
+		string carddes = "";
+		carddes += OTManager.instance.GetOT("CARD_POWER", cfg.power.ToString()) + "\\";
+		carddes += OTManager.instance.GetOT("CARD_GUARD", cfg.guard.ToString()) + "\n";
+		carddes += OTManager.instance.GetOT("CARD_COLOR", cfg.color) + "\\";
+		carddes += OTManager.instance.GetOT("CARD_NO", cfg.no) + "\\";
+		carddes += OTManager.instance.GetOT("CARD_RARE", cfg.rare) + "\n";
+		carddes += OTManager.instance.GetOT("CARD_TYPE", cfg.kind) + "\\";
+		carddes += OTManager.instance.GetOT("CARD_LEVEL", cfg.level.ToString()) + "\\";
+		if(cfg.frame != "null")
+		{
+			carddes += OTManager.instance.GetOT("CARD_FRAME", cfg.frame) + "\\";
+		}
+		carddes += OTManager.instance.GetOT("CARD_STRIKE", cfg.strike.ToString()) + "\\";
+		carddes += OTManager.instance.GetOT("CARD_FEATURE", cfg.feature);
+		return carddes;
 	}
 
 	public List<string> GetMasterCardList()
