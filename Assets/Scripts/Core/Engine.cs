@@ -67,6 +67,7 @@ public class Engine : MonoBehaviour
 		this.gameObject.AddComponent<PlayerCard>();
 		this.gameObject.AddComponent<Scene>();
 		this.gameObject.AddComponent<OTManager>();
+		this.gameObject.AddComponent<PlayerManager>();
 		EventManager.instance.Init();
 		//ModuleManager.instance.AddAdditionalModule(new StartModule());
 		//ModuleManager.instance.GotoModule(new StartModule());
