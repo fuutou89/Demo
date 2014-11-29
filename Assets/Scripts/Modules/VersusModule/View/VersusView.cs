@@ -53,8 +53,8 @@ public class VersusView : BaseView
 		CardSet cardset = new CardSet();
 		cardset = selfcardset;
 
-		if(PhotonNetwork.masterClient != PhotonNetwork.player) cardset.setlist = CardInfoManager.Instance.GetGuestCardList();
-		else cardset.setlist = CardInfoManager.Instance.GetMasterCardList();
+		if(PhotonNetwork.masterClient != PhotonNetwork.player) cardset.progressList = CardInfoManager.Instance.GetGuestCardList();
+		else cardset.progressList = CardInfoManager.Instance.GetMasterCardList();
 
 		PhotonNetwork.player.UpdateCardSet(cardset);
 	}

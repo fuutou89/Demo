@@ -12,7 +12,8 @@ using Core.Manager;
 [Serializable]
 public class CardSet
 {
-	public List<string> setlist = new List<string>();
+	public List<string> progressList = new List<string>();
+	public string actioncard;
 	public int energy = 0;
 	public int damage = 0;
 }
