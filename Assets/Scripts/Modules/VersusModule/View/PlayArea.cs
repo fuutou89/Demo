@@ -36,14 +36,9 @@ public class PlayArea : MonoBehaviour
 
 	public void UpdateArea(CardSet set)
 	{
-		for(int i = 0; i < set.progressList.Count; i++)
+		for(int i = 0; i < set.setlist.Count; i++)
 		{
-			cardProgressList[i].UpdateUnit(set.progressList[i]);
-//			cfgcard cfg = CardInfoManager.Instance.GetCardConfigByNo(set.progressList[i]);
-//			string[] namepre = cfg.no.Split('-');
-//			string impagepath = Resconfig.RES_CARD_IMAGE + namepre[0] + "/" + cfg.img;
-//			Texture2D tex = Resources.Load(impagepath) as Texture2D;
-//			texProgressList[i].mainTexture = tex;
+			cardProgressList[i].UpdateUnit(set.setlist[i]);
 		}
 	}
 }
