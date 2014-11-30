@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Core.Manager;
+using Config;
 
 public class PlayerManager : Singleton<PlayerManager> 
 {
@@ -18,6 +19,11 @@ public class PlayerManager : Singleton<PlayerManager>
 
 	public bool isWaiting = true;
 	public bool isChoosing = true;
+	public bool isPhaseEnd = false;
+
+	public bool WaitingStart = false;
+	public bool isTrunStart = false;
+
 	public DuelControl duelControl;
 
 	void Start()
@@ -26,6 +32,11 @@ public class PlayerManager : Singleton<PlayerManager>
 
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_AWAKE_START, _OnAwakePhaseStart);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_DEFENCE_START, _OnDefenceStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_DRAW_START, _OnDrawStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_ENERGY_START, _OnEnergyStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_ATTACK_START, _OnAttackStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_END_START, _OnEndStart);
 	}
 
 	void OnDestory()
@@ -34,8 +45,98 @@ public class PlayerManager : Singleton<PlayerManager>
 
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_AWAKE_START, _OnAwakePhaseStart);
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_DEFENCE_START, _OnDefenceStart);
-		
-		
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_DRAW_START, _OnDrawStart);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_ENERGY_START, _OnEnergyStart);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_ATTACK_START, _OnAttackStart);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_END_START, _OnEndStart);
+	}
+
+	private void _OnEndStart (params object[] args)
+	{
+		CardSet temp = playerCardSet;
+		//Discard Boost
+		int boostcount = 0;
+		for(int i = 0; i < temp.cardlist.Count; i++)
+		{
+			cfgcard cfg = CardInfoManager.Instance.GetCardConfigByNo(temp.cardlist[i].cardno);
+			if(cfg != null)
+			{
+				if(cfg.boost == "boost") 
+				{
+					boostcount++;
+					temp.cardlist[i] = new BattleCard();
+				}
+			}
+		}
+		temp.discard += boostcount;
+
+		//Discard InHand
+		if(temp.inhand >= 8)
+		{
+			temp.discard += (temp.inhand - 7);
+			temp.inhand = 7;
+		}
+
+		//Discard AC Card
+		if(temp.cardlist[4].cardno != "")
+		{
+			temp.cardlist[4] = new BattleCard();
+			temp.discard += 1;
+		}
+
+		temp.phase = (int)StateID.End;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	private void _OnAttackStart (params object[] args)
+	{
+		CardSet temp = playerCardSet;
+		temp.phase = (int)StateID.Attack;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	private void _OnMainStart (params object[] args)
+	{
+		CardSet temp = playerCardSet;
+		temp.phase = (int)StateID.Main;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	private void _OnEnergyStart (params object[] args)
+	{
+		CardSet temp = playerCardSet;
+		if(temp.energy < 8)
+		{
+			if(temp.deck < 1)
+			{
+				temp.deck = temp.discard - 1;
+				temp.discard = 0;
+			}
+			temp.deck -= 1;
+			temp.energyMax = temp.energyMax + 1;
+			temp.energy = temp.energyMax;
+		}
+		temp.phase = (int)StateID.Energy;
+		PhotonNetwork.player.UpdateCardSet(temp);
+
+		StartCoroutine(SwitchPhase());
+	}
+
+	private void _OnDrawStart (params object[] args)
+	{
+		CardSet temp = playerCardSet;
+		if(temp.deck < 2)
+		{
+			temp.deck = temp.discard - 1;
+			temp.discard = 0;
+		}
+		temp.deck -= 2;
+		temp.inhand += 2;
+		temp.phase = (int)StateID.Draw;
+		PhotonNetwork.player.UpdateCardSet(temp);
+
+		StartCoroutine(SwitchPhase());
 	}
 
 	private void _OnDefenceStart (params object[] args)
@@ -45,8 +146,10 @@ public class PlayerManager : Singleton<PlayerManager>
 		{
 			temp.energyMax = CalStartEnergy();
 			temp.energy = temp.energyMax;
+			temp.deck = temp.deck - CalStartEnergy();
 		}
 		temp.phase = (int)StateID.Defence;
+		temp.ownTurn = false;
 		PhotonNetwork.player.UpdateCardSet(temp);
 	}
 
@@ -57,10 +160,20 @@ public class PlayerManager : Singleton<PlayerManager>
 		if(temp.energyMax == 0)
 		{
 			temp.energyMax = CalStartEnergy();
+			temp.deck = temp.deck - CalStartEnergy();
 		}
 		temp.energy = temp.energyMax;
 		temp.phase = (int)StateID.Awake;
+		temp.ownTurn = true;
 		PhotonNetwork.player.UpdateCardSet(temp);
+
+		StartCoroutine(SwitchPhase());
+	}
+
+	IEnumerator SwitchPhase()
+	{
+		yield return new WaitForSeconds(1f);
+		isPhaseEnd = true;
 	}
 
 	private int CalStartEnergy()
@@ -83,10 +196,32 @@ public class PlayerManager : Singleton<PlayerManager>
 	private void _OnPlayerCardUpdate (params object[] args)
 	{
 		//CheckFingerGuess();
+		// Check Prepare Status
 		CardSet masterset = PhotonNetwork.masterClient.GetPlayerCardSet();
 		if(masterset.firstChoice != 0)
 		{
 			isChoosing = false;
+		}
+
+		List<PhotonPlayer> playerlist = new List<PhotonPlayer>(PhotonNetwork.playerList);
+		PhotonPlayer otherplayer = playerlist.Find(e => e != PhotonNetwork.player);
+		if(otherplayer != null)
+		{
+			CardSet selfset = PhotonNetwork.player.GetPlayerCardSet();
+			CardSet otherset = otherplayer.GetPlayerCardSet();
+			if(WaitingStart)
+			{
+				if(otherset.phase == (int)StateID.Defence && selfset.ownTurn == false)
+				{
+					isTrunStart = true;
+					WaitingStart = false;
+				}
+			}
+
+			if(otherset.ownTurn == true && selfset.phase == (int)StateID.Defence && otherset.phase == (int)StateID.End)
+			{
+				WaitingStart = true;
+			}
 		}
 	}
 
@@ -148,7 +283,10 @@ public class PlayerManager : Singleton<PlayerManager>
 
 	public void InitCareSet()
 	{
-		PhotonNetwork.player.UpdateCardSet(new CardSet());
+		CardSet initset = new CardSet();
+		initset.inhand = 5;
+		initset.deck = 45;
+		PhotonNetwork.player.UpdateCardSet(initset);
 	}
 
 	public void UpdateCardZone(int zonepos, string cardno)

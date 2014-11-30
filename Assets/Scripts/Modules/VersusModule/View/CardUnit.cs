@@ -25,6 +25,9 @@ public class CardUnit : MonoBehaviour
 	public UIButton btnFall;
 	public UILabel txtFall;
 
+	public UILabel txtPow;
+	public UILabel txtGuard;
+
 	public int zonepos;
 
 	// Use this for initialization
@@ -122,8 +125,9 @@ public class CardUnit : MonoBehaviour
 			{
 				if(txtFall != null) txtFall.text = "WAKE";
 				iTween.RotateTo(texCard.gameObject, new Vector3(0, 0, -90), 0.5f);
-				
 			}
+			txtPow.text = "POW:" + _card.power.ToString();
+			txtGuard.text = "GUD:" + _card.guard.ToString();
 		}
 
 	}

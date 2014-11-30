@@ -38,6 +38,7 @@ public class CardSet
 	public int finger = 0;
 	public int firstChoice = 0;
 
+	public bool ownTurn = false;
 	public int phase = 0;
 	public List<BattleCard> cardlist = new List<BattleCard>();
 	public List<string> setlist = new List<string>(){"","","","",""};
@@ -45,6 +46,9 @@ public class CardSet
 	public int energy = 0;
 	public int energyMax = 0;
 	public int damage = 0;
+	public int deck = 0;
+	public int discard = 0;
+	public int inhand = 0;
 
 	public CardSet()
 	{

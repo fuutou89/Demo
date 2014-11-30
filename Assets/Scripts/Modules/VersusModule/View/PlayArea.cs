@@ -31,11 +31,23 @@ public class PlayArea : MonoBehaviour
 	public UIButton btnClearShowCard;
 	public UIInput inputShowCard;
 
+	public UILabel txtDeck;
+	public UILabel txtInhand;
+	public UILabel txtDiscard;
+
+	public UIButton btnEndPhase;
+	public UILabel txtEndPhase;
+
+	private CardSet _tempset;
+	public CardSet Tempset { get { return _tempset; } }
+
 	// Use this for initialization
 	void Start () 
 	{
 		PoolManager.GetComponent<UIEventListener>(btnAddShowCard).onClick = OnClickbtnAddShowCard;
 		PoolManager.GetComponent<UIEventListener>(btnClearShowCard).onClick = OnClickbtnClearShowCard;
+		if(btnEndPhase != null)
+			PoolManager.GetComponent<UIEventListener>(btnEndPhase).onClick = OnClickbtnEndPhase;
 
 		cardProgressList.ForEach(e => { 
 			e.unitside = _areaSide;
@@ -53,6 +65,11 @@ public class PlayArea : MonoBehaviour
 
 		}
 		SetAreaStyle();
+	}
+
+	void OnClickbtnEndPhase (GameObject go)
+	{
+		PlayerManager.Instance.isPhaseEnd = true;
 	}
 
 	void SetAreaStyle()
@@ -84,6 +101,8 @@ public class PlayArea : MonoBehaviour
 
 	public void UpdateArea(CardSet set)
 	{
+		_tempset = set;
+
 		// Update Progress
 		for(int i = 0; i < cardProgressList.Count; i++)
 		{
@@ -116,5 +135,11 @@ public class PlayArea : MonoBehaviour
 
 		// Update Phase Title
 		txtPhase.text = "Phase" + ((StateID)set.phase).ToString();
+		if(txtEndPhase != null) txtEndPhase.text = ((StateID)set.phase).ToString() + "Phase\nEnd"; 
+
+		// Update Other
+		txtDeck.text = set.deck.ToString();
+		txtInhand.text = set.inhand.ToString();
+		txtDiscard.text = set.discard.ToString();
 	}
 }

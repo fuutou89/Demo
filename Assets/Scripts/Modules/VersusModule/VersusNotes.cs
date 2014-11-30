@@ -10,7 +10,13 @@ public class VersusNotes
 	public const string VERSUS_PREPARE_END = "VERSUS_PREPARE_END";
 	public const string VERSUS_AWAKE_START = "VERSUS_AWAKE_START";
 	public const string VERSUS_DEFENCE_START = "VERSUS_DEFENCE_START";
+	public const string VERSUS_DRAW_START = "VERSUS_DRAW_START";
+	public const string VERSUS_ENERGY_START = "VERSUS_ENERGY_START";
+	public const string VERSUS_MAIN_START = "VERSUS_MAIN_START";
+	public const string VERSUS_ATTACK_START = "VERSUS_ATTACK_START";
+	public const string VERSUS_END_START = "VERSUS_END_START";
 
+	public const string VERSUE_TRUN_END = "VERSUE_TRUN_END";
 
 	public const string VERSUS_PREPARE_RESULT = "VERSUS_PREPARE_RESULT";
 	public const string VERSUS_PREPARE_DRAW = "VERSUS_PREPARE_DRAW";

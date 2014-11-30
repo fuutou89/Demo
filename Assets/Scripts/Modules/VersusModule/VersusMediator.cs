@@ -27,6 +27,10 @@ public class VersusMediator : Mediator
 
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_START, _OnVersusStart);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_END, _OnPrepareEnd);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_DEFENCE_START, _OnDefenceStart);
+
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUE_TRUN_END, _OnTurnEnd);
 
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_RESULT, _OnShowPrepareResult);
 	}
@@ -39,12 +43,28 @@ public class VersusMediator : Mediator
 
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_START, _OnVersusStart);
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_END, _OnPrepareEnd);
-		
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_DEFENCE_START, _OnDefenceStart);
+
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUE_TRUN_END, _OnTurnEnd);
 
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_RESULT, _OnShowPrepareResult);
-		
-		
-		
+	}
+
+	private void _OnTurnEnd (params object[] args)
+	{
+		if(_View != null)
+		{
+
+		}
+	}
+
+	private void _OnDefenceStart (params object[] args)
+	{
+		if(_View != null)
+		{
+			_View.areaSelf.btnEndPhase.gameObject.SetActive(false);
+		}
 	}
 
 	private void _OnPlayerCardUpdate (params object[] args)
@@ -131,6 +151,14 @@ public class VersusMediator : Mediator
 			_View.areaTarget.gameObject.SetActive(true);
 			_View.StartChoice.SetActive(false);
 			_View.txtWaiting.gameObject.SetActive(false);
+		}
+	}
+
+	private void _OnMainStart (params object[] args)
+	{
+		if(_View != null)
+		{
+			_View.areaSelf.btnEndPhase.gameObject.SetActive(true);
 		}
 	}
 }

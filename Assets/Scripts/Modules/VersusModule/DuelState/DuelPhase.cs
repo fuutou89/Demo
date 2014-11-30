@@ -72,6 +72,11 @@ public class AwakePhase : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
+		if(PlayerManager.Instance.isPhaseEnd)
+		{
+			PlayerManager.Instance.isPhaseEnd = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.AwakePhaseEnd);
+		}
 //		PlayArea pa = player.GetComponent<PlayArea>();
 //		if(pa.PhaseEnd)
 //		{
@@ -103,21 +108,24 @@ public class DrawPhase : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		if(pa.PhaseEnd)
+		if(PlayerManager.Instance.isPhaseEnd)
 		{
-			Debug.Log ("------ SetTransition(Transition.DrawPhaseEnd) ------");
-			
-			npc.GetComponent<DuelControl>().SetTransition(Transition.DrawPhaseEnd);
-			pa.PhaseEnd = false;
+			PlayerManager.Instance.isPhaseEnd = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.DrawPhaseEnd);
 		}
 	}
 	
 	public override void Act (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		pa.txtPhase.text = "DrawPhase";
+//		PlayArea pa = player.GetComponent<PlayArea>();
+//		pa.txtPhase.text = "DrawPhase";
 	}
+
+	public override void DoBeforeEntering ()
+	{
+		EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_DRAW_START);
+	}
+
 }
 
 public class EnergyPhase : FSMState
@@ -129,18 +137,22 @@ public class EnergyPhase : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		if(pa.PhaseEnd)
+		if(PlayerManager.Instance.isPhaseEnd)
 		{
-			npc.GetComponent<DuelControl>().SetTransition(Transition.EnergyPhaseEnd);
-			pa.PhaseEnd = false;
+			PlayerManager.Instance.isPhaseEnd = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.EnergyPhaseEnd);
 		}
 	}
 	
 	public override void Act (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		pa.txtPhase.text = "EnergyPhase";
+//		PlayArea pa = player.GetComponent<PlayArea>();
+//		pa.txtPhase.text = "EnergyPhase";
+	}
+
+	public override void DoBeforeEntering ()
+	{
+		EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_ENERGY_START);
 	}
 }
 
@@ -153,18 +165,20 @@ public class MainPhase : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		if(pa.PhaseEnd)
+		if(PlayerManager.Instance.isPhaseEnd)
 		{
-			npc.GetComponent<DuelControl>().SetTransition(Transition.MainPhaseEnd);
-			pa.PhaseEnd = false;
+			PlayerManager.Instance.isPhaseEnd = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.MainPhaseEnd);
 		}
 	}
 	
 	public override void Act (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		pa.txtPhase.text = "MainPhase";
+	}
+
+	public override void DoBeforeEntering ()
+	{
+		EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_MAIN_START);
 	}
 }
 
@@ -177,18 +191,20 @@ public class AttackPhase : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		if(pa.PhaseEnd)
+		if(PlayerManager.Instance.isPhaseEnd)
 		{
-			npc.GetComponent<DuelControl>().SetTransition(Transition.AttackPhaseEnd);
-			pa.PhaseEnd = false;
+			PlayerManager.Instance.isPhaseEnd = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.AttackPhaseEnd);
 		}
 	}
 	
 	public override void Act (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		pa.txtPhase.text = "AttackPhase";
+	}
+
+	public override void DoBeforeEntering ()
+	{
+		EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_ATTACK_START);
 	}
 }
 
@@ -201,18 +217,25 @@ public class EndPhase : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		if(pa.PhaseEnd)
+		if(PlayerManager.Instance.isPhaseEnd)
 		{
-			npc.GetComponent<DuelControl>().SetTransition(Transition.TrunEnd);
-			pa.PhaseEnd = false;
+			PlayerManager.Instance.isPhaseEnd = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.TrunEnd);
 		}
 	}
 	
 	public override void Act (GameObject player, GameObject npc)
 	{
-		PlayArea pa = player.GetComponent<PlayArea>();
-		pa.txtPhase.text = "EndPhase";
+	}
+
+	public override void DoBeforeEntering ()
+	{
+		EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUS_END_START);
+	}
+
+	public override void DoBeforeLeaving ()
+	{
+		EventManager.instance.DispatchEvent(EventManager.instance, VersusNotes.VERSUE_TRUN_END);
 	}
 }
 
@@ -225,12 +248,11 @@ public class DefenceState : FSMState
 
 	public override void Reason (GameObject player, GameObject npc)
 	{
-//		PlayArea pa = player.GetComponent<PlayArea>();
-//		if(pa.TurnStart)
-//		{
-//			npc.GetComponent<DuelControl>().SetTransition(Transition.TurnStart);
-//			pa.TurnStart = false;
-//		}
+		if(PlayerManager.Instance.isTrunStart)
+		{
+			PlayerManager.Instance.isTrunStart = false;
+			PlayerManager.Instance.duelControl.SetTransition(Transition.TurnStart);
+		}
 	}
 	
 	public override void Act (GameObject player, GameObject npc)
