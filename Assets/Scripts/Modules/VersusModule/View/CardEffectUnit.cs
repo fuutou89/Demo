@@ -18,6 +18,7 @@ public class CardEffectUnit : MonoBehaviour
 	{
 		spEffectDes.spriteName = "icon_" + effect.type;
 		spEffectDes.MakePixelPerfect();
+		spEffectDes.gameObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 		txtEffectDes.text = effect.des;
 	}
 }

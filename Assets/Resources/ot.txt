@@ -44,3 +44,5 @@ CARD_FRAME_omega=[Ω]
 CARD_FRAME_sigma=[Σ]
 CARD_FRAME_turna=[∀∀]
 CARD_FRAME_null=[无]
+
+PHASE_PREPARE_GUEST=请等待主机选择先攻后攻...

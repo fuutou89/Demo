@@ -10,17 +10,46 @@ public class CardUnit : MonoBehaviour
 	public UIButton btnShift;
 	public UIInput inputShift;
 	private string cardno = "";
-	public string CARDNO { get { return cardno; }}
-	public PlayArea.Side unitside;
+	public string CARDNO { get { return cardno; } }
+	private BattleCard _card;
+	public BattleCard CARD { get { return _card; } }
+
+	private PlayArea.Side _unitside;
+	public PlayArea.Side unitside { 
+		get { return _unitside;} 
+		set {
+			_unitside = value;
+			SetSideStyle();
+		}
+	}
+	public UIButton btnFall;
+	public UILabel txtFall;
 
 	public int zonepos;
 
 	// Use this for initialization
 	void Start () 
 	{
-		PoolManager.GetComponent<UIEventListener>(btnCard).onClick = OnClickbtnCard;
-		PoolManager.GetComponent<UIEventListener>(btnCard).onHover = OnHoverbtnCard;
-		PoolManager.GetComponent<UIEventListener>(btnShift).onClick = OnClickbtnShift;
+		if(btnCard != null) 
+		{
+			PoolManager.GetComponent<UIEventListener>(btnCard).onClick = OnClickbtnCard;
+			PoolManager.GetComponent<UIEventListener>(btnCard).onHover = OnHoverbtnCard;
+		}
+		if(btnShift != null) PoolManager.GetComponent<UIEventListener>(btnShift).onClick = OnClickbtnShift;
+		if(btnFall != null) PoolManager.GetComponent<UIEventListener>(btnFall).onClick = OnClickbtnFall;
+	}
+
+	void OnClickbtnFall (GameObject go)
+	{
+		PlayerManager.Instance.UpdateCardStatus(zonepos, !_card.status);
+	}
+
+	private void SetSideStyle()
+	{
+		if(unitside == PlayArea.Side.DOWN) return;
+
+		if(btnShift != null) btnShift.gameObject.SetActive(false);
+		if(inputShift != null) inputShift.gameObject.SetActive(false);
 	}
 
 	void OnClickbtnShift (GameObject go)
@@ -75,5 +104,27 @@ public class CardUnit : MonoBehaviour
 				texCard.mainTexture = null;
 			}
 		}
+	}
+
+	public void UpdateBattleUnit(BattleCard battlecard)
+	{
+		if(battlecard != null && battlecard.cardno != "")
+		{
+			_card = battlecard;
+			UpdateUnit(_card.cardno);
+			float targetAngle = 0;
+			if(_card.status) 
+			{
+				if(txtFall != null) txtFall.text = "FALL";
+				iTween.RotateTo(texCard.gameObject, new Vector3(0, 0, 0), 0.5f);
+			}
+			else
+			{
+				if(txtFall != null) txtFall.text = "WAKE";
+				iTween.RotateTo(texCard.gameObject, new Vector3(0, 0, -90), 0.5f);
+				
+			}
+		}
+
 	}
 }

@@ -22,7 +22,10 @@ public enum Transition
 	EnergyPhaseEnd = 4,
 	MainPhaseEnd = 5,
 	AttackPhaseEnd = 6,
-	TrunEnd = 7
+	TrunEnd = 7,
+	GuestJoin = 8,
+	PrepareEnd_Win = 9,
+	PrepareEnd_Lose = 10,
 }
 
 /// <summary>
@@ -38,7 +41,9 @@ public enum StateID
 	Main = 4,
 	Attack = 5,
 	End = 6,
-	Defence = 7
+	Defence = 7,
+	Wait = 8,
+	Prepare = 9,
 }
 
 /// <summary>
@@ -137,6 +142,8 @@ public abstract class FSMState
 	/// NPC is a reference to the object that is controlled by this class
 	/// </summary>
 	public abstract void Reason(GameObject player, GameObject npc);
+	//public abstract void Reason();
+	
 
 	/// <summary>
 	/// This method controls the behavior of the NPC in the game World.
@@ -144,6 +151,8 @@ public abstract class FSMState
 	/// NPC is a reference to the object that is controlled by this class
 	/// </summary>
 	public abstract void Act(GameObject player, GameObject npc);
+	//public abstract void Act();
+	
 
 } // class FSMState
 

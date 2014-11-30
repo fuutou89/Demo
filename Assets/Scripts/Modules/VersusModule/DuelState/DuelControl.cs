@@ -3,7 +3,8 @@ using System.Collections;
 
 public class DuelControl : MonoBehaviour 
 {
-	public PlayArea duelArea;
+	public PlayArea selfArea;
+	public PlayArea targetArea;
 	private FSMSystem fsm;
 
 	public void SetTransition(Transition t) {fsm.PerformTransition(t);}
@@ -16,8 +17,8 @@ public class DuelControl : MonoBehaviour
 
 	public void FixedUpdate()
 	{
-		fsm.CurrentState.Reason(duelArea.gameObject, gameObject);
-		fsm.CurrentState.Act(duelArea.gameObject, gameObject);
+		fsm.CurrentState.Reason(selfArea.gameObject, targetArea.gameObject);
+		fsm.CurrentState.Act(selfArea.gameObject, targetArea.gameObject);
 	}
 
 	private void MakeFSM()
@@ -43,7 +44,17 @@ public class DuelControl : MonoBehaviour
 		DefenceState defstate = new DefenceState();
 		defstate.AddTransition(Transition.TurnStart, StateID.Awake);
 
+		WaitState waitstate = new WaitState();
+		waitstate.AddTransition(Transition.GuestJoin, StateID.Prepare);
+
+		PreparePhase preparestate = new PreparePhase();
+		preparestate.AddTransition(Transition.PrepareEnd_Win, StateID.Awake);
+		preparestate.AddTransition(Transition.PrepareEnd_Lose, StateID.Defence);
+
 		fsm = new FSMSystem();
+
+		fsm.AddState(waitstate);
+		fsm.AddState(preparestate);
 		fsm.AddState(defstate);
 		fsm.AddState(phase1);
 		fsm.AddState(phase2);

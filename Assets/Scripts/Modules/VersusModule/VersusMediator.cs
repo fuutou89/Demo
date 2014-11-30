@@ -18,18 +18,32 @@ public class VersusMediator : Mediator
 	public override void OnRegister ()
 	{
 		PoolManager.Instance.AddView(Resconfig.VERSUS_VIEW);
+		PlayerManager.Instance.InitCareSet();
+		PlayerManager.Instance.duelControl = _View.duelControl;
 
 		EventManager.instance.AddEventListener(EventManager.instance, GameEvent.PLAYER_CARD_UPDATE, _OnPlayerCardUpdate);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_HOVER_ON_CARD, _OnHoverOnCard);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_HOVER_OFF_CARD, _OnHoverOffCard);
-		
+
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_START, _OnVersusStart);
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_END, _OnPrepareEnd);
+
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_RESULT, _OnShowPrepareResult);
 	}
 
 	public override void OnRemove ()
 	{
 		EventManager.instance.RemoveEventListener(EventManager.instance, GameEvent.PLAYER_CARD_UPDATE, _OnPlayerCardUpdate);
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_HOVER_ON_CARD, _OnHoverOnCard);
-		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_HOVER_OFF_CARD, _OnHoverOffCard);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_HOVER_OFF_CARD, _OnHoverOffCard);
+
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_START, _OnVersusStart);
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_END, _OnPrepareEnd);
+		
+
+		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_RESULT, _OnShowPrepareResult);
+		
+		
 		
 	}
 
@@ -72,6 +86,51 @@ public class VersusMediator : Mediator
 		if(_View != null)
 		{
 			_View.cardDesPanel.gameObject.SetActive(false);
+		}
+	}
+
+	private void _OnVersusStart (params object[] args)
+	{
+		if(_View != null)
+		{
+			if(PhotonNetwork.masterClient == PhotonNetwork.player)
+			{
+				_View.txtWaiting.gameObject.SetActive(false);
+				_View.StartChoice.SetActive(true);
+			}
+			else
+			{
+				_View.txtWaiting.text = OTManager.Instance.GetOT("PHASE_PREPARE_GUEST");
+			}
+		}
+	}
+
+	private void _OnShowPrepareResult (params object[] args)
+	{
+		if(_View != null)
+		{
+			int result = PlayerManager.Instance.FingleGuessResult();
+			switch(result)
+			{
+			case 0:
+				_View.PlayerFingerAni(true);
+				break;
+			case 1:
+			case 2:
+				_View.PlayerFingerAni(false);
+				break;
+			}
+		}
+	}
+
+	private void _OnPrepareEnd (params object[] args)
+	{
+		if(_View != null)
+		{
+			_View.areaSelf.gameObject.SetActive(true);
+			_View.areaTarget.gameObject.SetActive(true);
+			_View.StartChoice.SetActive(false);
+			_View.txtWaiting.gameObject.SetActive(false);
 		}
 	}
 }

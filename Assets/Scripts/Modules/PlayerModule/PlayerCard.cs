@@ -10,11 +10,51 @@ using Config;
 using Core.Manager;
 
 [Serializable]
+public class BattleCard
+{
+	public string cardno = "";
+	public int pos;
+	public bool status = true;
+	public int power = 0;
+	public int guard = 0;
+
+	public BattleCard()
+	{}
+
+	public BattleCard(string no, bool awake)
+	{
+		cardno  = no;
+		cfgcard cfg = CardInfoManager.Instance.GetCardConfigByNo(no);
+		power = cfg.power;
+		guard = cfg.guard;
+		status = awake;
+	}
+}
+
+[Serializable]
 public class CardSet
 {
-	public List<string> setlist = new List<string>();
+	// Data for Prepare Game
+	public int finger = 0;
+	public int firstChoice = 0;
+
+	public int phase = 0;
+	public List<BattleCard> cardlist = new List<BattleCard>();
+	public List<string> setlist = new List<string>(){"","","","",""};
+	public List<string> showlist = new List<string>();
 	public int energy = 0;
+	public int energyMax = 0;
 	public int damage = 0;
+
+	public CardSet()
+	{
+		for(int i = 0; i < 5; i++)
+		{
+			BattleCard status = new BattleCard();
+			status.pos = i;
+			cardlist.Add(status);
+		}
+	}
 }
 
 public class PlayerCard : MonoBehaviour 
@@ -24,6 +64,7 @@ public class PlayerCard : MonoBehaviour
 	void Start()
 	{
 		PhotonPeer.RegisterType(typeof(CardSet), (byte)'Z', NetworkManager.SerializeVector, NetworkManager.DeserializeVector);
+		PhotonPeer.RegisterType(typeof(BattleCard), (byte)'Y', NetworkManager.SerializeVector, NetworkManager.DeserializeVector);
 	}
 
 	public void OnPhotonPlayerPropertiesChanged(object[] playerAndUpdatedProps)
