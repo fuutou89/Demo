@@ -25,9 +25,21 @@ public class PlayerManager : Singleton<PlayerManager>
 	public bool isTrunStart = false;
 
 	public DuelControl duelControl;
+	public BattleCom battleCom;
+
+	private PhotonPlayer vsPlayer
+	{
+		get
+		{
+			List<PhotonPlayer> playerlist = new List<PhotonPlayer>(PhotonNetwork.playerList);
+			return playerlist.Find(e => e != PhotonNetwork.player);
+		}
+	}
 
 	void Start()
 	{
+		battleCom = this.gameObject.GetComponent<BattleCom>();
+
 		EventManager.instance.AddEventListener(EventManager.instance, GameEvent.PLAYER_CARD_UPDATE, _OnPlayerCardUpdate);
 
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_AWAKE_START, _OnAwakePhaseStart);
@@ -37,6 +49,8 @@ public class PlayerManager : Singleton<PlayerManager>
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_ATTACK_START, _OnAttackStart);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_END_START, _OnEndStart);
+
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUE_TRUN_END, _OnTurnEnd);
 	}
 
 	void OnDestory()
@@ -50,6 +64,13 @@ public class PlayerManager : Singleton<PlayerManager>
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_ATTACK_START, _OnAttackStart);
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_END_START, _OnEndStart);
+
+		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUE_TRUN_END, _OnTurnEnd);
+	}
+
+	private void _OnTurnEnd (params object[] args)
+	{
+		battleCom.photonView.RPC("TurnStart", vsPlayer);
 	}
 
 	private void _OnEndStart (params object[] args)
@@ -203,26 +224,24 @@ public class PlayerManager : Singleton<PlayerManager>
 			isChoosing = false;
 		}
 
-		List<PhotonPlayer> playerlist = new List<PhotonPlayer>(PhotonNetwork.playerList);
-		PhotonPlayer otherplayer = playerlist.Find(e => e != PhotonNetwork.player);
-		if(otherplayer != null)
-		{
-			CardSet selfset = PhotonNetwork.player.GetPlayerCardSet();
-			CardSet otherset = otherplayer.GetPlayerCardSet();
-			if(WaitingStart)
-			{
-				if(otherset.phase == (int)StateID.Defence && selfset.ownTurn == false)
-				{
-					isTrunStart = true;
-					WaitingStart = false;
-				}
-			}
-
-			if(otherset.ownTurn == true && selfset.phase == (int)StateID.Defence && otherset.phase == (int)StateID.End)
-			{
-				WaitingStart = true;
-			}
-		}
+//		if(vsPlayer != null)
+//		{
+//			CardSet selfset = PhotonNetwork.player.GetPlayerCardSet();
+//			CardSet otherset = vsPlayer.GetPlayerCardSet();
+//			if(WaitingStart)
+//			{
+//				if(otherset.phase == (int)StateID.Defence && selfset.ownTurn == false)
+//				{
+//					isTrunStart = true;
+//					WaitingStart = false;
+//				}
+//			}
+//
+//			if(otherset.ownTurn == true && selfset.phase == (int)StateID.Defence && otherset.phase == (int)StateID.End)
+//			{
+//				WaitingStart = true;
+//			}
+//		}
 	}
 
 	private void CheckFingerGuess()
@@ -333,6 +352,39 @@ public class PlayerManager : Singleton<PlayerManager>
 	{
 		CardSet temp = playerCardSet;
 		temp.firstChoice = choice;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	public void DamageVsPlayer()
+	{
+		battleCom.photonView.RPC("Damage", vsPlayer, 1);
+	}
+
+	public void Damage()
+	{
+		CardSet temp = playerCardSet;
+		if(temp.damage < 8) temp.damage = temp.damage + 1;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	public void Heal()
+	{
+		CardSet temp = playerCardSet;
+		if(temp.damage > 0) temp.damage = temp.damage - 1;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	public void Cost()
+	{
+		CardSet temp = playerCardSet;
+		if(temp.energy > 0) temp.energy = temp.energy - 1;
+		PhotonNetwork.player.UpdateCardSet(temp);
+	}
+
+	public void Charge()
+	{
+		CardSet temp = playerCardSet;
+		if(temp.energy < temp.energyMax) temp.energy = temp.energy + 1;
 		PhotonNetwork.player.UpdateCardSet(temp);
 	}
 }

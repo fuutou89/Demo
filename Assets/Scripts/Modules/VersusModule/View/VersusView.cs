@@ -95,14 +95,15 @@ public class VersusView : BaseView
 
 	void OnClickbtnAddEnergy (GameObject go)
 	{
-		selfcardset.energy += 1;
-		CardSet cardset = new CardSet();
-		cardset = selfcardset;
-
-		if(PhotonNetwork.masterClient != PhotonNetwork.player) cardset.setlist = CardInfoManager.Instance.GetGuestCardList();
-		else cardset.setlist = CardInfoManager.Instance.GetMasterCardList();
-
-		PhotonNetwork.player.UpdateCardSet(cardset);
+//		selfcardset.energy += 1;
+//		CardSet cardset = new CardSet();
+//		cardset = selfcardset;
+//
+//		if(PhotonNetwork.masterClient != PhotonNetwork.player) cardset.setlist = CardInfoManager.Instance.GetGuestCardList();
+//		else cardset.setlist = CardInfoManager.Instance.GetMasterCardList();
+//
+//		PhotonNetwork.player.UpdateCardSet(cardset);
+		PlayerManager.Instance.DamageVsPlayer();
 	}
 
 	public void PlayerFingerAni(bool reset)

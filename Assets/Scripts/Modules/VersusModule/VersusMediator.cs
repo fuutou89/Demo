@@ -30,7 +30,7 @@ public class VersusMediator : Mediator
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_DEFENCE_START, _OnDefenceStart);
 
-		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUE_TRUN_END, _OnTurnEnd);
+
 
 		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_RESULT, _OnShowPrepareResult);
 	}
@@ -46,7 +46,7 @@ public class VersusMediator : Mediator
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_MAIN_START, _OnMainStart);
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_DEFENCE_START, _OnDefenceStart);
 
-		EventManager.instance.AddEventListener(EventManager.instance, VersusNotes.VERSUE_TRUN_END, _OnTurnEnd);
+
 
 		EventManager.instance.RemoveEventListener(EventManager.instance, VersusNotes.VERSUS_PREPARE_RESULT, _OnShowPrepareResult);
 	}

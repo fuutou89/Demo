@@ -41,6 +41,11 @@ public class PlayArea : MonoBehaviour
 	private CardSet _tempset;
 	public CardSet Tempset { get { return _tempset; } }
 
+	public UIButton btnHit;
+	public UIButton btnHeal;
+	public UIButton btnCost;
+	public UIButton btnCharge;
+
 	// Use this for initialization
 	void Start () 
 	{
@@ -65,6 +70,31 @@ public class PlayArea : MonoBehaviour
 
 		}
 		SetAreaStyle();
+
+		if(btnHit != null) PoolManager.GetComponent<UIEventListener>(btnHit).onClick = OnClickbtnHit;
+		if(btnHeal != null) PoolManager.GetComponent<UIEventListener>(btnHeal).onClick = OnClickbtnHeal;
+		if(btnCost != null) PoolManager.GetComponent<UIEventListener>(btnCost).onClick = OnClickbtnCost;
+		if(btnCharge != null) PoolManager.GetComponent<UIEventListener>(btnCharge).onClick = OnClickbtnCharge;
+	}
+
+	void OnClickbtnCharge (GameObject go)
+	{
+		PlayerManager.Instance.Charge();
+	}
+
+	void OnClickbtnCost (GameObject go)
+	{
+		PlayerManager.Instance.Cost();
+	}
+
+	void OnClickbtnHit (GameObject go)
+	{
+		PlayerManager.Instance.Damage();
+	}
+
+	void OnClickbtnHeal (GameObject go)
+	{
+		PlayerManager.Instance.Heal();
 	}
 
 	void OnClickbtnEndPhase (GameObject go)
@@ -132,6 +162,9 @@ public class PlayArea : MonoBehaviour
 
 		// Update Energy
 		togglebarEnergy.SetBarValue(set.energyMax, set.energy);
+
+		// Update Damage
+		togglebarDamage.SetBarValue(8, set.damage);
 
 		// Update Phase Title
 		txtPhase.text = "Phase" + ((StateID)set.phase).ToString();
