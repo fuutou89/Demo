@@ -25,8 +25,11 @@ public class BattleCard
 	{
 		cardno  = no;
 		cfgcard cfg = CardInfoManager.Instance.GetCardConfigByNo(no);
-		power = cfg.power;
-		guard = cfg.guard;
+		if(cfg != null)
+		{
+			power = cfg.power;
+			guard = cfg.guard;
+		}
 		status = awake;
 	}
 }

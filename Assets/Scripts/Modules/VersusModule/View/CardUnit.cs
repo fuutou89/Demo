@@ -59,11 +59,16 @@ public class CardUnit : MonoBehaviour
 	{
 		if(inputShift.value != "")
 		{
-			cfgcard cfg = CardInfoManager.Instance.GetCardConfigByNo(inputShift.value);
-			if(cfg != null)
-			{
-				PlayerManager.Instance.UpdateCardZone(zonepos, inputShift.value);
-			}
+			PlayerManager.Instance.UpdateCardZone(zonepos, inputShift.value);
+//			cfgcard cfg = CardInfoManager.Instance.GetCardConfigByNo(inputShift.value);
+//			if(cfg != null)
+//			{
+//
+//			}
+//			else
+//			{
+//				PlayerManager.Instance.UpdateCardZone(zonepos, "");
+//			}
 		}
 	}
 
@@ -100,6 +105,10 @@ public class CardUnit : MonoBehaviour
 					string impagepath = Resconfig.RES_CARD_IMAGE + namepre[0] + "/" + cfg.img;
 					Texture2D tex = Resources.Load(impagepath) as Texture2D;
 					texCard.mainTexture = tex;
+				}
+				else
+				{
+					texCard.mainTexture = null;
 				}
 			}
 			else
